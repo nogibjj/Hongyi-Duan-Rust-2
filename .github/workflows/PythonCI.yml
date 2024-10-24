@@ -1,0 +1,41 @@
+name: Python CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Install Rust and Maturin
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          pip install maturin
+
+      - name: Build Rust extension
+        run: |
+          source .venv/bin/activate  # Ensure the virtualenv is activated
+          maturin develop
+
+      - name: Run Python tests
+        run: |
+          source .venv/bin/activate  # Activate the virtualenv again
+          python -m unittest discover

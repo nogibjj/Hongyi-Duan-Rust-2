@@ -1,0 +1,25 @@
+name: Rust CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build Rust project
+        run: |
+          cargo build --release
+
+      - name: Test Rust project
+        run: |
+          cargo test
+    
